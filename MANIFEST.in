@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include uniherb *.css
+recursive-include uniherb *.csv
+recursive-include uniherb *.html
+recursive-include uniherb *.ico
+recursive-include uniherb *.js
+recursive-include uniherb *.json
+recursive-include uniherb *.md
+recursive-include uniherb *.png
+recursive-include uniherb *.py
+recursive-include uniherb *.svg
+recursive-include uniherb *.txt
+recursive-exclude uniherb *.pyc
