@@ -1168,7 +1168,7 @@ frappe.ui.form.on('Sales Invoice Item', {
         var d = locals[cdt][cdn];
         if (d.item_code && d.batch_no) {
             frappe.call({
-                method: 'fbtrader.fbtrader.doctype.utils.fetch_purchased_items_info_by_batch_no',
+                method: 'uniherb.uniherb.utils.fetch_purchased_items_info_by_batch_no',
                 args: {
                     'item_code': d.item_code,
                     'batch_no': d.batch_no,
