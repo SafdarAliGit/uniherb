@@ -86,12 +86,12 @@ def get_data(filters):
     conditions = get_conditions(filters)
 
     # Generating SQL subqueries to filter payable and receivable accounts
-    payable_subquery = """
-            SELECT name FROM `tabAccount` WHERE account_type = 'Payable'
-        """
-    receivable_subquery = """
-            SELECT name FROM `tabAccount` WHERE account_type = 'Receivable'
-        """
+    # payable_subquery = """
+    #         SELECT name FROM `tabAccount` WHERE account_type = 'Payable'
+    #     """
+    # receivable_subquery = """
+    #         SELECT name FROM `tabAccount` WHERE account_type = 'Receivable'
+    #     """
 
     gle_query = f"""
             SELECT 
@@ -99,11 +99,11 @@ def get_data(filters):
                 gle.voucher_no,
                 gle.account,
                 gle.against,
-                CASE WHEN gle.account IN ({payable_subquery}) THEN gle.party ELSE NULL END AS creditor_party,
-                CASE WHEN gle.account IN ({receivable_subquery}) THEN gle.party ELSE NULL END AS debitor_party,
+                CASE WHEN gle.account IN ('Creditors - UH') THEN gle.party ELSE NULL END AS creditor_party,
+                CASE WHEN gle.account IN ('Debtors - UH') THEN gle.party ELSE NULL END AS debitor_party,
                 CASE 
-                    WHEN gle.account IN ({payable_subquery}) AND gle.debit > 0 THEN gle.debit 
-                    WHEN gle.account IN ({receivable_subquery}) AND gle.credit > 0 THEN gle.credit 
+                    WHEN gle.account IN ('Debtors - UH') AND gle.debit > 0 THEN gle.debit 
+                    WHEN gle.account IN ('Creditors - UH') AND gle.credit > 0 THEN gle.credit 
                     ELSE NULL 
                 END AS amount,
                 gle.remarks
@@ -112,8 +112,8 @@ def get_data(filters):
                 {conditions}
                 AND gle.is_cancelled = 0
                 AND gle.voucher_type = 'Journal Entry'
-                AND (gle.account IN ({payable_subquery}) OR gle.account IN ({receivable_subquery}))
-                AND ((gle.account IN ({payable_subquery}) AND gle.debit > 0) OR (gle.account IN ({receivable_subquery}) AND gle.credit > 0))
+                AND (gle.account IN ('Creditors - UH') OR gle.account IN ('Debtors - UH'))
+                AND ((gle.account IN ('Debtors - UH') AND gle.debit > 0) OR (gle.account IN ('Creditors - UH') AND gle.credit > 0))
             ORDER BY gle.voucher_no
         """
 
