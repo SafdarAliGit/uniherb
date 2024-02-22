@@ -40,8 +40,14 @@ def get_columns():
             "width": 180
         },
         {
-            "label": "<b>AMOUNT</b>",
-            "fieldname": "amount",
+            "label": "<b>DEBIT</b>",
+            "fieldname": "debit",
+            "fieldtype": "Currency",
+            "width": 140
+        },
+        {
+            "label": "<b>CREDIT</b>",
+            "fieldname": "credit",
             "fieldtype": "Currency",
             "width": 140
         },
@@ -74,11 +80,8 @@ def get_data(filters):
                 je.name AS voucher_no,
                 jea.party_type,
                 jea.party,
-                CASE 
-                    WHEN jea.account = 'Creditors - UH' AND jea.debit > 0 THEN jea.debit 
-                    WHEN jea.account = 'Debtors - UH' AND jea.credit > 0 THEN jea.credit 
-                    ELSE 0 
-                END AS amount,
+                jea.debit,
+                jea.credit,
                 jea.user_remark
             FROM 
                 `tabJournal Entry` AS je
