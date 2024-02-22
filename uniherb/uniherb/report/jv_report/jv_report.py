@@ -28,33 +28,17 @@ def get_columns():
         },
         {
           "label": "<b>ACCOUNT</b>",
-          "fieldname": "account",
-          "fieldtype": "Link",
-          "options": "Account",
+          "fieldname": "party_type",
+          "fieldtype": "Data",
           "width": 180
         },
-        {
-            "label": "<b>AGAINST</b>",
-            "fieldname": "against",
-            "fieldtype": "Link",
-            "options": "Account",
-            "width": 180
-        },
 
         {
-            "label": "<b>CREDITOR PARTY</b>",
-            "fieldname": "creditor_party",
+            "label": "<b>PARTY</b>",
+            "fieldname": "party",
             "fieldtype": "Data",
             "width": 180
         },
-        {
-            "label": "<b>DEBITOR PARTY</b>",
-            "fieldname": "debitor_party",
-            "fieldtype": "Data",
-            "width": 180
-
-        },
-
         {
             "label": "<b>AMOUNT</b>",
             "fieldname": "amount",
@@ -63,7 +47,7 @@ def get_columns():
         },
         {
             "label": "<b>REMARKS</b>",
-            "fieldname": "remarks",
+            "fieldname": "user_remark",
             "fieldtype": "Data",
             "width": 180
         }
@@ -75,47 +59,48 @@ def get_columns():
 def get_conditions(filters):
     conditions = []
     if filters.get("from_date"):
-        conditions.append(f"gle.posting_date >= %(from_date)s")
+        conditions.append(f"je.posting_date >= %(from_date)s")
     if filters.get("to_date"):
-        conditions.append(f"gle.posting_date <= %(to_date)s")
+        conditions.append(f"je.posting_date <= %(to_date)s")
     return " AND ".join(conditions)
 
 
 def get_data(filters):
     data = []
     conditions = get_conditions(filters)
-
-    # Generating SQL subqueries to filter payable and receivable accounts
-    # payable_subquery = """
-    #         SELECT name FROM `tabAccount` WHERE account_type = 'Payable'
-    #     """
-    # receivable_subquery = """
-    #         SELECT name FROM `tabAccount` WHERE account_type = 'Receivable'
-    #     """
-
     gle_query = f"""
             SELECT 
-                gle.posting_date,
-                gle.voucher_no,
-                gle.account,
-                gle.against,
-                CASE WHEN gle.account IN ('Creditors - UH') THEN gle.party ELSE NULL END AS creditor_party,
-                CASE WHEN gle.account IN ('Debtors - UH') THEN gle.party ELSE NULL END AS debitor_party,
+                je.posting_date,
+                je.name AS voucher_no,
+                jea.party_type,
+                jea.party,
                 CASE 
-                    WHEN gle.account IN ('Debtors - UH') AND gle.debit > 0 THEN gle.debit 
-                    WHEN gle.account IN ('Creditors - UH') AND gle.credit > 0 THEN gle.credit 
-                    ELSE NULL 
+                    WHEN jea.account = 'Creditors - UH' AND jea.debit > 0 THEN jea.debit 
+                    WHEN jea.account = 'Debtors - UH' AND jea.credit > 0 THEN jea.credit 
+                    ELSE 0 
                 END AS amount,
-                gle.remarks
-            FROM `tabGL Entry` AS gle
+                jea.user_remark
+            FROM 
+                `tabJournal Entry` AS je
+            JOIN 
+                `tabJournal Entry Account` AS jea ON je.name = jea.parent
             WHERE 
-                {conditions}
-                AND gle.is_cancelled = 0
-                AND gle.voucher_type = 'Journal Entry'
-                AND (gle.account IN ('Creditors - UH') OR gle.account IN ('Debtors - UH'))
-                AND ((gle.account IN ('Debtors - UH') AND gle.debit > 0) OR (gle.account IN ('Creditors - UH') AND gle.credit > 0))
-            ORDER BY gle.voucher_no
+                jea.account IN ('Debtors - UH', 'Creditors - UH')
+                AND jea.party_type IN ('Customer', 'Supplier')
+                AND je.docstatus = 1
+                AND je.name IN (
+                    SELECT parent 
+                    FROM `tabJournal Entry Account` 
+                    WHERE account IN ('Debtors - UH', 'Creditors - UH')
+                    GROUP BY parent 
+                    HAVING COUNT(DISTINCT account) = 2
+                )
+                AND {conditions}
+            ORDER BY 
+                je.name
         """
+    # Execute your SQL query here using gle_query
+
 
     gle_query_result = frappe.db.sql(gle_query, filters, as_dict=1)
 
