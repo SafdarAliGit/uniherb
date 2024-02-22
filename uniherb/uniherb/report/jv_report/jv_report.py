@@ -21,10 +21,24 @@ def get_columns():
         },
         {
             "label": "<b>JV NO</b>",
-            "fieldname": "name",
+            "fieldname": "voucher_no",
             "fieldtype": "Link",
-            "options": "GL Entry",
+            "options": "Journal Entry",
             "width": 160
+        },
+        {
+          "label": "<b>ACCOUNT</b>",
+          "fieldname": "account",
+          "fieldtype": "Link",
+          "options": "Account",
+          "width": 180
+        },
+        {
+            "label": "<b>AGAINST</b>",
+            "fieldname": "against",
+            "fieldtype": "Link",
+            "options": "Account",
+            "width": 180
         },
 
         {
@@ -82,7 +96,9 @@ def get_data(filters):
     gle_query = f"""
             SELECT 
                 gle.posting_date,
-                gle.name,
+                gle.voucher_no,
+                gle.account,
+                gle.against,
                 CASE WHEN gle.account IN ({payable_subquery}) THEN gle.party ELSE NULL END AS creditor_party,
                 CASE WHEN gle.account IN ({receivable_subquery}) THEN gle.party ELSE NULL END AS debitor_party,
                 CASE 
@@ -98,6 +114,7 @@ def get_data(filters):
                 AND gle.voucher_type = 'Journal Entry'
                 AND (gle.account IN ({payable_subquery}) OR gle.account IN ({receivable_subquery}))
                 AND ((gle.account IN ({payable_subquery}) AND gle.debit > 0) OR (gle.account IN ({receivable_subquery}) AND gle.credit > 0))
+            ORDER BY gle.voucher_no
         """
 
     gle_query_result = frappe.db.sql(gle_query, filters, as_dict=1)
