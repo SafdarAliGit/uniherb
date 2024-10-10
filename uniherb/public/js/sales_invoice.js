@@ -1037,7 +1037,7 @@ frappe.ui.form.on('Sales Invoice', {
             },
             callback: function (r) {
                 if (r.message) {
-                    frm.set_value('current_outstanding_amount', r.message);
+                    frm.set_value('current_outstanding', r.message);
                 }
             }
         });
