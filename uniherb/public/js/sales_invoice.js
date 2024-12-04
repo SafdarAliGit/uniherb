@@ -1,11 +1,7 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
-{%
-    include
-    'erpnext/selling/sales_common.js' %
-}
-;
+{% include 'erpnext/selling/sales_common.js' %};
 frappe.provide("erpnext.accounts");
 
 
@@ -1029,7 +1025,7 @@ frappe.ui.form.on('Sales Invoice', {
             frm: frm
         });
     },
-    // CUSTOM GETTING CUSTOMER BALANCE
+        // CUSTOM GETTING CUSTOMER BALANCE
     customer: function (frm) {
         frappe.call({
             method: 'erpnext.accounts.utils.get_balance_on',
@@ -1049,18 +1045,18 @@ frappe.ui.form.on('Sales Invoice', {
     // CUSTOM GETTING CUSTOMER BALANCE END
     // CUSTOM  COPY COMMISSION TO WRITE OF AMOUNT
 
-    commission: function (frm) {
-        var commission = frm.doc.commission;
-        frm.set_value("write_off_amount", commission);
-    },
+	commission:function(frm) {
+	var commission = frm.doc.commission;
+	frm.set_value("write_off_amount", commission);
+	},
 
     // CUSTOM  COPY COMMISSION TO WRITE OF AMOUNT END
-    // CUSTOM WORK
-    write_off_percentage: function (frm) {
-        var write_off_amount = frm.doc.total * (frm.doc.write_off_percentage / 100);
-        frm.set_value('write_off_amount', write_off_amount);
-    },
-    // END CUSTOM WORK
+    	// CUSTOM WORK
+	write_off_percentage: function (frm){
+		var write_off_amount = frm.doc.total * (frm.doc.write_off_percentage/100);
+		frm.set_value('write_off_amount',write_off_amount);
+	},
+	// END CUSTOM WORK
 });
 
 frappe.ui.form.on("Sales Invoice Timesheet", {
@@ -1149,11 +1145,11 @@ frappe.ui.form.on('Sales Invoice Item', {
                             title: __(`Rates of <u style="font-weight: bolder;font-size: 17px;0">${d.item_name} </u> for last 5 sales and purchases:`),
                             indicator: 'green',
                             message: __(
-                                s
-                                + '<hr>'
-                                + p
-                            )
-                        });
+                                         s
+                                         + '<hr>'
+                                         + p
+                                       )
+                                     });
 
                     }
                 }
@@ -1166,7 +1162,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 
     // CUSTOM FUNCTION TO FECTCH RECENT SOLD ITEMS END
-    // ========================================
+    	// ========================================
     // FETCHING ITEM INFO FROM PURCHASE INVOICE ITEM UISNG BATCH NO AND ITEM CODE
     // batch_no: function (frm, cdt, cdn) {
     //     var d = locals[cdt][cdn];
@@ -1200,35 +1196,29 @@ frappe.ui.form.on('Sales Invoice Item', {
     // },
     // CUSTOM CALCULATE BAGA ADN LBS
 
-    kg_per_ctn: function (frm, cdt, cdn) {
-        var d = locals[cdt][cdn];
-        var lbs_per_ctn = d.kg_per_ctn * 2.20462;
-        var lbs = d.qty * lbs_per_ctn
-        frappe.model.set_value(cdt, cdn, "lbs_per_ctn", lbs_per_ctn);
-        frappe.model.set_value(cdt, cdn, "lbs", lbs);
+        kg_per_ctn:function (frm, cdt, cdn) {
+            var d = locals[cdt][cdn];
+            var lbs_per_ctn = d.kg_per_ctn * 2.20462;
+			var lbs = d.qty * lbs_per_ctn
+            frappe.model.set_value(cdt, cdn, "lbs_per_ctn", lbs_per_ctn);
+            frappe.model.set_value(cdt, cdn, "lbs", lbs);
 
 
-    },
-    qty: function (frm, cdt, cdn) {
-        var d = locals[cdt][cdn];
-        var lbs_per_ctn = d.kg_per_ctn * 2.20462;
-        var lbs = d.qty * lbs_per_ctn
-        frappe.model.set_value(cdt, cdn, "lbs_per_ctn", lbs_per_ctn);
-        frappe.model.set_value(cdt, cdn, "lbs", lbs);
+	},
+	 qty:function (frm, cdt, cdn) {
+            var d = locals[cdt][cdn];
+            var lbs_per_ctn = d.kg_per_ctn * 2.20462;
+			var lbs = d.qty * lbs_per_ctn
+            frappe.model.set_value(cdt, cdn, "lbs_per_ctn", lbs_per_ctn);
+            frappe.model.set_value(cdt, cdn, "lbs", lbs);
 
 
-    },
-    rate_per_lbs: function (frm, cdt, cdn) {
-        var d = locals[cdt][cdn];
-        var rate_per_lbs = d.rate_per_lbs;
-        var rate = d.lbs_per_ctn * rate_per_lbs
-        frappe.model.set_value(cdt, cdn, "rate", rate);
+	},
+		 rate_per_lbs:function (frm, cdt, cdn) {
+            var d = locals[cdt][cdn];
+            var rate_per_lbs = d.rate_per_lbs;
+			var rate = d.lbs_per_ctn * rate_per_lbs
+            frappe.model.set_value(cdt, cdn, "rate", rate);
 
-    },
-    // CUSTOM
-    onload(frm) {
-        $(frm.wrapper).off('click', '[data-fieldname="batch_no"]').on('click', '[data-fieldname="batch_no"]', function (e) {
-            alert("hi");
-        });
-    }
+	}
 });
